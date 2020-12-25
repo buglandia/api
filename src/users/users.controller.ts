@@ -7,7 +7,7 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { User } from './entities/user.entity';
+import { User } from './user.entity';
 import { UserService } from './users.service';
 
 @Controller('users')
@@ -26,16 +26,16 @@ export class UserController {
 
   @Get(':id')
   findOne(@Param('id') id: string): Promise<User> {
-    return this.userService.findOne(+id);
+    return this.userService.findOne(id);
   }
 
   @Put(':id')
   update(@Param('id') id: string, @Body() user: User): Promise<any> {
-    return this.userService.update(+id, user);
+    return this.userService.update(id, user);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string): Promise<any> {
-    return this.userService.remove(+id);
+    return this.userService.remove(id);
   }
 }
