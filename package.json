@@ -79,11 +79,11 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
     "coveragePathIgnorePatterns": [
-    ".module.ts$",
-    ".spec.ts$",
-    ".seed.ts$",
-    ".factory.ts$",
-    "main.ts$"
-  ]
+      ".module.ts$",
+      ".spec.ts$",
+      ".seed.ts$",
+      ".factory.ts$",
+      "main.ts$"
+    ]
   }
 }
