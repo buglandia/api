@@ -4,7 +4,12 @@ import { Connection } from 'typeorm';
 import { UserModule } from './users/users.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(), UserModule],
+  imports: [
+    TypeOrmModule.forRoot({
+      keepConnectionAlive: true,
+    }),
+    UserModule,
+  ],
   controllers: [],
   providers: [],
 })

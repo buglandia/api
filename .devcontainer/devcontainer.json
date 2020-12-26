@@ -16,7 +16,9 @@
     "mhutchie.git-graph",
     "eamodio.gitlens",
     "visualstudioexptteam.vscodeintellicode",
-    "humao.rest-client"
+    "humao.rest-client",
+    "editorconfig.editorconfig",
+    "orta.vscode-jest"
   ],
   "postCreateCommand": "npm install",
   "remoteUser": "vscode"

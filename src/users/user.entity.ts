@@ -8,8 +8,8 @@ import {
 
 @Entity()
 export class User {
-  @PrimaryColumn({ type: 'numeric' })
-  id: number;
+  @PrimaryColumn({ type: 'character varying' })
+  id: string;
 
   @Column()
   name: string;
