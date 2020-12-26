@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import TestUtil from './../../src/common/test/testUtil';
-import { User } from './user.entity';
-import { UserController } from './users.controller';
-import { UserService } from './users.service';
+import TestUtil from '../testUtil';
+import { User } from '../../../users/user.entity';
+import { UserController } from '../../../users/users.controller';
+import { UserService } from '../../../users/users.service';
 
 describe('UserController', () => {
   let controller: UserController;
@@ -47,7 +47,7 @@ describe('UserController', () => {
 
   describe('create', () => {
     it('should create a user', async () => {
-      const user = TestUtil.giveAMeAValidUser();
+      const user = TestUtil.giveAUser();
       mockRepository.create.mockReturnValue(user);
       mockRepository.save.mockReturnValue(user);
       const savedUser = await controller.create(user);
@@ -60,7 +60,7 @@ describe('UserController', () => {
 
   describe('findAll', () => {
     it('should be list all users', async () => {
-      const user = TestUtil.giveAMeAValidUser();
+      const user = TestUtil.giveAUser();
       mockRepository.find.mockReturnValue([user, user]);
       const users = await controller.findAll();
 
@@ -72,7 +72,7 @@ describe('UserController', () => {
 
   describe('findOne', () => {
     it('should find a existing user', async () => {
-      const user = TestUtil.giveAMeAValidUser();
+      const user = TestUtil.giveAUser();
       mockRepository.findOne.mockReturnValue(user);
       const userFound = await controller.findOne(user.id);
 
@@ -83,8 +83,8 @@ describe('UserController', () => {
 
   describe('update', () => {
     it('should update a user', async () => {
-      const user = TestUtil.giveAMeAValidUser();
-      const updatedUser = TestUtil.giveAMeAValidUser();
+      const user = TestUtil.giveAUser();
+      const updatedUser = TestUtil.giveAUpdatedUser();
       mockRepository.findOne.mockReturnValue(user);
       mockRepository.update.mockReturnValue({
         ...user,
@@ -109,7 +109,7 @@ describe('UserController', () => {
 
   describe('remove', () => {
     it('should remove a existing user', async () => {
-      const user = TestUtil.giveAMeAValidUser();
+      const user = TestUtil.giveAUser();
       mockRepository.findOne.mockReturnValue(user);
       mockRepository.delete.mockReturnValue(user);
       const removedUser = await controller.remove(user.id);

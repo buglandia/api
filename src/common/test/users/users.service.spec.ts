@@ -4,9 +4,9 @@ import {
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import TestUtil from './../common/test/testUtil';
-import { User } from './user.entity';
-import { UserService } from './users.service';
+import TestUtil from '../testUtil';
+import { User } from '../../../users/user.entity';
+import { UserService } from '../../../users/users.service';
 
 describe('UserService', () => {
   let service: UserService;
@@ -49,7 +49,7 @@ describe('UserService', () => {
 
   describe('create', () => {
     it('should create a user', async () => {
-      const user = TestUtil.giveAMeAValidUser();
+      const user = TestUtil.giveAUser();
       mockRepository.create.mockReturnValue(user);
       mockRepository.save.mockReturnValue(user);
       const savedUser = await service.create(user);
@@ -60,7 +60,7 @@ describe('UserService', () => {
     });
 
     it('should return a exception when doesnt create user', async () => {
-      const user = TestUtil.giveAMeAValidUser();
+      const user = TestUtil.giveAUser();
       mockRepository.create.mockReturnValue(null);
       mockRepository.save.mockReturnValue(null);
 
@@ -74,7 +74,7 @@ describe('UserService', () => {
 
   describe('findAll', () => {
     it('should be list all users', async () => {
-      const user = TestUtil.giveAMeAValidUser();
+      const user = TestUtil.giveAUser();
       mockRepository.find.mockReturnValue([user, user]);
       const users = await service.findAll();
 
@@ -85,7 +85,7 @@ describe('UserService', () => {
 
   describe('findOne', () => {
     it('should find a existing user', async () => {
-      const user = TestUtil.giveAMeAValidUser();
+      const user = TestUtil.giveAUser();
       mockRepository.findOne.mockReturnValue(user);
       const userFound = await service.findOne(user.id);
 
@@ -94,7 +94,7 @@ describe('UserService', () => {
     });
 
     it('should return a exception when doesnt find user', async () => {
-      const user = TestUtil.giveAMeAValidUser();
+      const user = TestUtil.giveAUser();
       mockRepository.findOne.mockReturnValue(null);
 
       expect(service.findOne(`${user.id}`)).rejects.toBeInstanceOf(
@@ -106,8 +106,8 @@ describe('UserService', () => {
 
   describe('update', () => {
     it('should update a user', async () => {
-      const user = TestUtil.giveAMeAValidUser();
-      const updatedUser = TestUtil.giveAMeAValidUser();
+      const user = TestUtil.giveAUser();
+      const updatedUser = TestUtil.giveAUpdatedUser();
       mockRepository.findOne.mockReturnValue(user);
       mockRepository.update.mockReturnValue({
         ...user,
@@ -132,7 +132,7 @@ describe('UserService', () => {
 
   describe('remove', () => {
     it('should remove a existing user', async () => {
-      const user = TestUtil.giveAMeAValidUser();
+      const user = TestUtil.giveAUser();
       mockRepository.findOne.mockReturnValue(user);
       mockRepository.delete.mockReturnValue(user);
       const removedUser = await service.remove(user.id);
@@ -143,7 +143,7 @@ describe('UserService', () => {
     });
 
     it('should not remove a inexisting user', async () => {
-      const user = TestUtil.giveAMeAValidUser();
+      const user = TestUtil.giveAUser();
       mockRepository.findOne.mockReturnValue(user);
       mockRepository.delete.mockReturnValue(null);
       const removedUser = await service.remove(user.id);
