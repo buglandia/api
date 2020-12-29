@@ -9,7 +9,7 @@ async function bootstrap() {
     .setVersion('0.0.1')
     .build();
   const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('/', app, document);
+  SwaggerModule.setup('/swagger', app, document);
   await app.listen(process.env.PORT || 3000);
 }
 bootstrap();
