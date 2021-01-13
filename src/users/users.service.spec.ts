@@ -1,12 +1,15 @@
+import {
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import TestUtil from '../testUtil';
-import { User } from '../../../users/user.entity';
-import { UserController } from '../../../users/users.controller';
-import { UserService } from '../../../users/users.service';
+import TestUtil from '../common/test/testUtil';
+import { User } from './user.entity';
+import { UserService } from './users.service';
 
-describe('UserController', () => {
-  let controller: UserController;
+describe('UserService', () => {
+  let service: UserService;
 
   const mockRepository = {
     create: jest.fn(),
@@ -19,7 +22,6 @@ describe('UserController', () => {
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [UserController],
       providers: [
         UserService,
         {
@@ -29,20 +31,20 @@ describe('UserController', () => {
       ],
     }).compile();
 
-    beforeEach(async () => {
-      mockRepository.create.mockReset();
-      mockRepository.save.mockReset();
-      mockRepository.find.mockReset();
-      mockRepository.findOne.mockReset();
-      mockRepository.update.mockReset();
-      mockRepository.delete.mockReset();
-    });
+    service = module.get<UserService>(UserService);
+  });
 
-    controller = module.get<UserController>(UserController);
+  beforeEach(async () => {
+    mockRepository.create.mockReset();
+    mockRepository.save.mockReset();
+    mockRepository.find.mockReset();
+    mockRepository.findOne.mockReset();
+    mockRepository.update.mockReset();
+    mockRepository.delete.mockReset();
   });
 
   it('should be defined', () => {
-    expect(controller).toBeDefined();
+    expect(service).toBeDefined();
   });
 
   describe('create', () => {
@@ -50,9 +52,21 @@ describe('UserController', () => {
       const user = TestUtil.giveAUser();
       mockRepository.create.mockReturnValue(user);
       mockRepository.save.mockReturnValue(user);
-      const savedUser = await controller.create(user);
+      const savedUser = await service.create(user);
 
       expect(savedUser).toMatchObject(user);
+      expect(mockRepository.create).toHaveBeenCalledTimes(1);
+      expect(mockRepository.save).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return a exception when doesnt create user', async () => {
+      const user = TestUtil.giveAUser();
+      mockRepository.create.mockReturnValue(null);
+      mockRepository.save.mockReturnValue(null);
+
+      expect(service.create(user)).rejects.toBeInstanceOf(
+        InternalServerErrorException,
+      );
       expect(mockRepository.create).toHaveBeenCalledTimes(1);
       expect(mockRepository.save).toHaveBeenCalledTimes(1);
     });
@@ -62,11 +76,10 @@ describe('UserController', () => {
     it('should be list all users', async () => {
       const user = TestUtil.giveAUser();
       mockRepository.find.mockReturnValue([user, user]);
-      const users = await controller.findAll();
+      const users = await service.findAll();
 
-      expect(users).toMatchObject([user, user]);
       expect(users).toHaveLength(2);
-      expect(mockRepository.find).toBeCalledTimes(1);
+      expect(mockRepository.find).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -74,10 +87,20 @@ describe('UserController', () => {
     it('should find a existing user', async () => {
       const user = TestUtil.giveAUser();
       mockRepository.findOne.mockReturnValue(user);
-      const userFound = await controller.findOne(user.id);
+      const userFound = await service.findOne(user.id);
 
       expect(userFound).toMatchObject(user);
-      expect(mockRepository.findOne).toBeCalledTimes(1);
+      expect(mockRepository.findOne).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return a exception when doesnt find user', async () => {
+      const user = TestUtil.giveAUser();
+      mockRepository.findOne.mockReturnValue(null);
+
+      expect(service.findOne(`${user.id}`)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
+      expect(mockRepository.findOne).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -95,7 +118,7 @@ describe('UserController', () => {
         ...updatedUser,
       });
 
-      const resultUser = await controller.update(user.id, {
+      const resultUser = await service.update(user.id, {
         ...user,
         ...updatedUser,
       });
@@ -112,9 +135,20 @@ describe('UserController', () => {
       const user = TestUtil.giveAUser();
       mockRepository.findOne.mockReturnValue(user);
       mockRepository.delete.mockReturnValue(user);
-      const removedUser = await controller.remove(user.id);
+      const removedUser = await service.remove(user.id);
 
       expect(removedUser).toBe(true);
+      expect(mockRepository.findOne).toHaveBeenCalledTimes(1);
+      expect(mockRepository.delete).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not remove a inexisting user', async () => {
+      const user = TestUtil.giveAUser();
+      mockRepository.findOne.mockReturnValue(user);
+      mockRepository.delete.mockReturnValue(null);
+      const removedUser = await service.remove(user.id);
+
+      expect(removedUser).toBe(false);
       expect(mockRepository.findOne).toHaveBeenCalledTimes(1);
       expect(mockRepository.delete).toHaveBeenCalledTimes(1);
     });

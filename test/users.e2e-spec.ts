@@ -34,7 +34,13 @@ describe('UsersController (e2e)', () => {
   it('/users (GET)', async (callback) => {
     const res = await request(app.getHttpServer()).get('/users').expect(200);
 
-    expect(res.body[0]).toMatchObject(user);
+    expect(res.body[0].id).toEqual(user.id);
+    expect(res.body[0].name).toEqual(user.name);
+    expect(res.body[0].userName).toEqual(user.userName);
+    expect(res.body[0].password).toEqual(undefined);
+    expect(res.body[0].token).toEqual(user.token);
+    expect(res.body[0].isActive).toEqual(user.isActive);
+    expect(res.body[0].admin).toEqual(user.admin);
     expect(res.body).toHaveLength(1);
     callback();
   });
@@ -44,7 +50,13 @@ describe('UsersController (e2e)', () => {
       .get(`/users/${user.id}`)
       .expect(200);
 
-    expect(res.body).toMatchObject(user);
+    expect(res.body.id).toEqual(user.id);
+    expect(res.body.name).toEqual(user.name);
+    expect(res.body.userName).toEqual(user.userName);
+    expect(res.body.password).toEqual(undefined);
+    expect(res.body.token).toEqual(user.token);
+    expect(res.body.isActive).toEqual(user.isActive);
+    expect(res.body.admin).toEqual(user.admin);
     callback();
   });
 
