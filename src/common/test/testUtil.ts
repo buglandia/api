@@ -7,6 +7,9 @@ export default class TestUtil {
     user.id = faker.random.alphaNumeric(18);
     user.name = faker.name.findName();
     user.userName = faker.internet.userName();
+    user.admin = faker.random.boolean();
+    user.password = faker.internet.password();
+    user.token = faker.random.alphaNumeric();
     user.isActive = faker.random.boolean();
     return user;
   }
@@ -14,6 +17,9 @@ export default class TestUtil {
     const user = new User();
     user.name = faker.name.findName();
     user.userName = faker.internet.userName();
+    user.admin = faker.random.boolean();
+    user.password = faker.internet.password();
+    user.token = faker.random.alphaNumeric();
     user.isActive = faker.random.boolean();
     return user;
   }
