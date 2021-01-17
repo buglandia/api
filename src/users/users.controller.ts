@@ -7,35 +7,38 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { User } from './user.entity';
-import { UserService } from './users.service';
+import { Prisma, User } from '@prisma/client';
+import { UsersService } from './users.service';
 
 @Controller('users')
-export class UserController {
-  constructor(private readonly userService: UserService) {}
+export class UsersController {
+  constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() user: User): Promise<any> {
-    return this.userService.create(user);
+  create(@Body() data: Prisma.UserCreateInput): Promise<User> {
+    return this.usersService.create(data);
   }
 
   @Get()
   findAll(): Promise<User[]> {
-    return this.userService.findAll();
+    return this.usersService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string): Promise<User> {
-    return this.userService.findOne(id);
+    return this.usersService.findOne({ id: +id });
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() user: User): Promise<any> {
-    return this.userService.update(id, user);
+  update(
+    @Param('id') id: string,
+    @Body() data: Prisma.UserUpdateInput,
+  ): Promise<User> {
+    return this.usersService.update({ id: +id }, data);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<any> {
-    return this.userService.remove(id);
+  remove(@Param('id') id: string): Promise<User> {
+    return this.usersService.remove({ id: +id });
   }
 }

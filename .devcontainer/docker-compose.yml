@@ -10,6 +10,8 @@ services:
       - ..:/workspace/api:cached
         # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
+    environment:
+      DATABASE_URL: postgres://user:pass@postgres:5432/data
   postgres:
     image: postgres
     restart: unless-stopped
