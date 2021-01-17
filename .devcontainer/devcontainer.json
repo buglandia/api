@@ -18,7 +18,8 @@
     "visualstudioexptteam.vscodeintellicode",
     "humao.rest-client",
     "editorconfig.editorconfig",
-    "orta.vscode-jest"
+    "orta.vscode-jest",
+    "prisma.prisma"
   ],
   "postCreateCommand": "npm install",
   "remoteUser": "vscode"

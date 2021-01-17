@@ -2,82 +2,69 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { User } from './../src/users/user.entity';
-import TestUtil from './../src/common/test/testUtil';
+import { Prisma, PrismaClient } from '@prisma/client';
+import { validUser } from './testUtil';
 
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
+  const prisma = new PrismaClient();
 
-  beforeEach(async (callback) => {
+  beforeEach(async (done) => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
-    callback();
+    done();
   });
 
-  const user: User = TestUtil.giveAUser();
-  const updatedUser: User = TestUtil.giveAUpdatedUser();
+  const user: Prisma.UserCreateInput = validUser();
 
-  it('/users (POST)', async (callback) => {
+  it('/users (POST)', async (done) => {
     const res = await request(app.getHttpServer())
       .post('/users')
       .send(user)
       .expect(201);
 
     expect(res.body).toMatchObject(user);
-    callback();
+    done();
   });
 
-  it('/users (GET)', async (callback) => {
+  it('/users (GET)', async (done) => {
     const res = await request(app.getHttpServer()).get('/users').expect(200);
-
-    expect(res.body[0].id).toEqual(user.id);
-    expect(res.body[0].name).toEqual(user.name);
-    expect(res.body[0].userName).toEqual(user.userName);
-    expect(res.body[0].password).toEqual(undefined);
-    expect(res.body[0].token).toEqual(user.token);
-    expect(res.body[0].isActive).toEqual(user.isActive);
-    expect(res.body[0].admin).toEqual(user.admin);
     expect(res.body).toHaveLength(1);
-    callback();
+    done();
   });
 
-  it('/users/:id (GET)', async (callback) => {
+  it('/users/:id (GET)', async (done) => {
+    const res = await request(app.getHttpServer()).get(`/users/1`).expect(200);
+
+    expect(res.body).toMatchObject(user);
+    done();
+  });
+
+  it('/users/:id (PUT)', async (done) => {
     const res = await request(app.getHttpServer())
-      .get(`/users/${user.id}`)
+      .put(`/users/1`)
+      .send(user)
       .expect(200);
 
-    expect(res.body.id).toEqual(user.id);
-    expect(res.body.name).toEqual(user.name);
-    expect(res.body.userName).toEqual(user.userName);
-    expect(res.body.password).toEqual(undefined);
-    expect(res.body.token).toEqual(user.token);
-    expect(res.body.isActive).toEqual(user.isActive);
-    expect(res.body.admin).toEqual(user.admin);
-    callback();
+    expect(res.body).toMatchObject(user);
+    done();
   });
 
-  it('/users/:id (PUT)', async (callback) => {
+  it('/users/:id (DELETE)', async (done) => {
     const res = await request(app.getHttpServer())
-      .put(`/users/${user.id}`)
-      .send(updatedUser)
+      .delete(`/users/1`)
       .expect(200);
-
-    expect(res.body.id).toEqual(user.id);
-    expect(res.body).toMatchObject(updatedUser);
-    callback();
+    expect(res.body).toMatchObject(user);
+    done();
   });
 
-  it('/users/:id (DELETE)', async (callback) => {
-    await request(app.getHttpServer()).delete(`/users/${user.id}`).expect(200);
-    callback();
-  });
-
-  afterAll(async (callback) => {
+  afterAll(async (done) => {
     await app.close();
-    callback();
+    await prisma.$disconnect();
+    done();
   });
 });

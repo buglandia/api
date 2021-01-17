@@ -1,122 +1,65 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import TestUtil from '../common/test/testUtil';
-import { User } from './user.entity';
-import { UserController } from './users.controller';
-import { UserService } from './users.service';
+import { PrismaClient } from '@prisma/client';
+import { validUser } from '../../test/testUtil';
+import { PrismaService } from '../prisma.service';
+import { UsersController } from './users.controller';
+import { UsersService } from './users.service';
 
-describe('UserController', () => {
-  let controller: UserController;
+describe('UsersController', () => {
+  let controller: UsersController;
+  const prisma = new PrismaClient();
 
-  const mockRepository = {
-    create: jest.fn(),
-    save: jest.fn(),
-    find: jest.fn(),
-    findOne: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-  };
+  const user = validUser();
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [UserController],
-      providers: [
-        UserService,
-        {
-          provide: getRepositoryToken(User),
-          useValue: mockRepository,
-        },
-      ],
+      controllers: [UsersController],
+      providers: [PrismaService, UsersService],
     }).compile();
-
-    beforeEach(async () => {
-      mockRepository.create.mockReset();
-      mockRepository.save.mockReset();
-      mockRepository.find.mockReset();
-      mockRepository.findOne.mockReset();
-      mockRepository.update.mockReset();
-      mockRepository.delete.mockReset();
-    });
-
-    controller = module.get<UserController>(UserController);
+    controller = module.get<UsersController>(UsersController);
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  afterAll(async (done) => {
+    await prisma.$disconnect();
+    done();
   });
 
-  describe('create', () => {
+  describe('Create User', () => {
     it('should create a user', async () => {
-      const user = TestUtil.giveAUser();
-      mockRepository.create.mockReturnValue(user);
-      mockRepository.save.mockReturnValue(user);
-      const savedUser = await controller.create(user);
-
-      expect(savedUser).toMatchObject(user);
-      expect(mockRepository.create).toHaveBeenCalledTimes(1);
-      expect(mockRepository.save).toHaveBeenCalledTimes(1);
+      const res = await controller.create(user);
+      expect(res).toMatchObject(user);
     });
   });
 
-  describe('findAll', () => {
+  describe('Find Users', () => {
     it('should be list all users', async () => {
-      const user = TestUtil.giveAUser();
-      mockRepository.find.mockReturnValue([user, user]);
-      const users = await controller.findAll();
-
-      expect(users).toMatchObject([user, user]);
-      expect(users).toHaveLength(2);
-      expect(mockRepository.find).toBeCalledTimes(1);
+      const res = await controller.findAll();
+      expect(res[0]).toMatchObject(user);
+      expect(res).toHaveLength(1);
     });
   });
 
-  describe('findOne', () => {
+  describe('Find User', () => {
     it('should find a existing user', async () => {
-      const user = TestUtil.giveAUser();
-      mockRepository.findOne.mockReturnValue(user);
-      const userFound = await controller.findOne(user.id);
+      const res = await controller.findOne('1');
 
-      expect(userFound).toMatchObject(user);
-      expect(mockRepository.findOne).toBeCalledTimes(1);
+      expect(res).toMatchObject(user);
     });
   });
 
-  describe('update', () => {
+  describe('Update User', () => {
     it('should update a user', async () => {
-      const user = TestUtil.giveAUser();
-      const updatedUser = TestUtil.giveAUpdatedUser();
-      mockRepository.findOne.mockReturnValue(user);
-      mockRepository.update.mockReturnValue({
-        ...user,
-        ...updatedUser,
-      });
-      mockRepository.create.mockReturnValue({
-        ...user,
-        ...updatedUser,
-      });
+      const res = await controller.update('1', user);
 
-      const resultUser = await controller.update(user.id, {
-        ...user,
-        ...updatedUser,
-      });
-
-      expect(resultUser).toMatchObject(updatedUser);
-      expect(mockRepository.findOne).toHaveBeenCalledTimes(1);
-      expect(mockRepository.update).toHaveBeenCalledTimes(1);
-      expect(mockRepository.create).toHaveBeenCalledTimes(1);
+      expect(res).toMatchObject(user);
     });
   });
 
-  describe('remove', () => {
-    it('should remove a existing user', async () => {
-      const user = TestUtil.giveAUser();
-      mockRepository.findOne.mockReturnValue(user);
-      mockRepository.delete.mockReturnValue(user);
-      const removedUser = await controller.remove(user.id);
+  describe('should remove a existing user', () => {
+    it('Deve retornar um usuario deletado', async () => {
+      const res = await controller.remove('1');
 
-      expect(removedUser).toBe(true);
-      expect(mockRepository.findOne).toHaveBeenCalledTimes(1);
-      expect(mockRepository.delete).toHaveBeenCalledTimes(1);
+      expect(res).toMatchObject(user);
     });
   });
 });
