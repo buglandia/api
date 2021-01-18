@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
 
@@ -17,35 +21,66 @@ const userSelect: Prisma.UserSelect = {
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  create(
-    data: Prisma.UserCreateInput,
-  ): Prisma.Prisma__UserClient<Record<string, unknown>> {
-    return this.prisma.user.create({ data, select: userSelect });
+  async create(data: Prisma.UserCreateInput) {
+    try {
+      return await this.prisma.user.create({ data, select: userSelect });
+    } catch (error) {
+      throw new InternalServerErrorException('Error to create user, try again');
+    }
   }
 
-  findAll(): Promise<Record<string, unknown>[]> {
-    return this.prisma.user.findMany({ select: userSelect });
+  async findAll() {
+    try {
+      return await this.prisma.user.findMany({ select: userSelect });
+    } catch (error) {
+      throw new InternalServerErrorException('Error to find users, try again');
+    }
   }
 
-  findOne(
-    where: Prisma.UserWhereUniqueInput,
-  ): Prisma.Prisma__UserClient<Record<string, unknown>> {
-    return this.prisma.user.findUnique({
+  async findOne(where: Prisma.UserWhereUniqueInput) {
+    const user = await this.prisma.user.findUnique({
       where,
       select: userSelect,
     });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
   }
 
-  update(
+  async update(
     where: Prisma.UserWhereUniqueInput,
     data: Prisma.UserUpdateInput,
-  ): Prisma.Prisma__UserClient<Record<string, unknown>> {
-    return this.prisma.user.update({ where, data, select: userSelect });
+  ) {
+    const user = await this.prisma.user.findUnique({ where });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    try {
+      return await this.prisma.user.update({
+        where: { id: user.id },
+        data,
+        select: userSelect,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error to update a user, try again',
+      );
+    }
   }
 
-  remove(
-    where: Prisma.UserWhereUniqueInput,
-  ): Prisma.Prisma__UserClient<Record<string, unknown>> {
-    return this.prisma.user.delete({ where, select: userSelect });
+  async remove(where: Prisma.UserWhereUniqueInput) {
+    const user = await this.prisma.user.findUnique({ where });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    try {
+      return await this.prisma.user.delete({
+        where: { id: user.id },
+        select: userSelect,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException('Error to remove user, try again');
+    }
   }
 }
