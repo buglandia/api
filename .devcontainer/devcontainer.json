@@ -19,7 +19,8 @@
     "humao.rest-client",
     "editorconfig.editorconfig",
     "orta.vscode-jest",
-    "prisma.prisma"
+    "prisma.prisma",
+    "abhijoybasak.nestjs-files"
   ],
   "postCreateCommand": "npm install",
   "remoteUser": "vscode"
