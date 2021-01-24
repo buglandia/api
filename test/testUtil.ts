@@ -5,7 +5,7 @@ export const validUser = (): Prisma.UserCreateInput => {
   const user: Prisma.UserCreateInput = {
     name: faker.name.findName(),
     email: faker.internet.email(),
-    username: faker.internet.userName(),
+    password: faker.internet.password(),
   };
   return user;
 };

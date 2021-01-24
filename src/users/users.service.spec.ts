@@ -9,6 +9,10 @@ describe('UsersService', () => {
   const prisma = new PrismaClient();
 
   const user = validUser();
+  const returnedUser: Prisma.UserWhereInput = {
+    name: user.name,
+    email: user.email,
+  };
   const UserWhereUniqueInput: Prisma.UserWhereUniqueInput = {
     email: user.email,
   };
@@ -28,14 +32,14 @@ describe('UsersService', () => {
   describe('Create User', () => {
     it('should create a user', async () => {
       const res = await service.create(user);
-      expect(res).toMatchObject(user);
+      expect(res).toMatchObject(returnedUser);
     });
   });
 
   describe('Find Users', () => {
     it('should be list all users', async () => {
       const res = await service.findAll();
-      expect(res[0]).toMatchObject(user);
+      expect(res[0]).toMatchObject(returnedUser);
       expect(res).toHaveLength(1);
     });
   });
@@ -44,7 +48,7 @@ describe('UsersService', () => {
     it('should find a existing user', async () => {
       const res = await service.findOne(UserWhereUniqueInput);
 
-      expect(res).toMatchObject(user);
+      expect(res).toMatchObject(returnedUser);
     });
   });
 
@@ -52,15 +56,15 @@ describe('UsersService', () => {
     it('should update a user', async () => {
       const res = await service.update(UserWhereUniqueInput, user);
 
-      expect(res).toMatchObject(user);
+      expect(res).toMatchObject(returnedUser);
     });
   });
 
-  describe('should remove a existing user', () => {
-    it('Deve retornar um usuario deletado', async () => {
+  describe('Delete User', () => {
+    it('should remove a existing user', async () => {
       const res = await service.remove(UserWhereUniqueInput);
 
-      expect(res).toMatchObject(user);
+      expect(res).toMatchObject(returnedUser);
     });
   });
 });
